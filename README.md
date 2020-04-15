@@ -16,6 +16,7 @@ You can change User-Agent if you need here (sess.headers.update({'User-Agent': '
 
 You can turn off sounds (errors and finish) by setting sounds=False
 
+To change pics size (by default it equals 1920х1080), edit field: link = f'https://yandex.ru/images/search?text={self.search}&isize=eq&iw=1920&ih=1080&p={self.k}'
 Good Luck.
 
 ------ Русский ------
@@ -33,6 +34,10 @@ PAGES - говорим скрипту, сколько страниц ему пр
 
 2. Дополнения
 Добавлены звуки (при ошибке и при завершении работы скрипта). Если напрягают - отключите (sounds=False).
+
 Можно менять User-Agent на другой, если нужно. Вот строка: sess.headers.update({'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'})
+
+Для изменения размера загружаемых картинок править строку: link = f'https://yandex.ru/images/search?text={self.search}&isize=eq&iw=1920&ih=1080&p={self.k}'
+По умолчанию идет размер 1920х1080
 
 Успехов!
