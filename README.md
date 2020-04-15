@@ -1,5 +1,7 @@
 Download yandex pictures (in python)
+
 ----- ENGLISH ----- 
+
 Needed libraries: Beautiful soup, requests.
 
 1.	HOW TO START yandexpics.py - open it and add settings: WORD - type any search query for pictures you need PATH - path for saving photos PAGES - how many pages to load (1 page = 30 photos)
@@ -12,6 +14,7 @@ To change pics size (by default it equals 1920х1080), edit field: link = f'http
 Good Luck.
 
 ------ Русский ------ 
+
 Скрипт качает картинки с Яндекс.Картинок Написано на python (вам потребуется интерпретатор - качается с оф. сайта) Также, нужно установить библиотеки: Beautiful soup, requests.
 
 1.	Как запустить yandexpics.py - откройте этот файл и сделайте настройки: WORD - здесь пишем, что нужно найти PATH - тут указываем путь к папке будущих картинок PAGES - говорим скрипту, сколько страниц ему пролистывать (на одной - 30 фоток)
@@ -22,4 +25,3 @@ Good Luck.
 Для изменения размера загружаемых картинок править строку: link = f'https://yandex.ru/images/search?text={self.search}&isize=eq&iw=1920&ih=1080&p={self.k}' По умолчанию идет размер 1920х1080
 
 Успехов!
-
