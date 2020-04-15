@@ -4,7 +4,7 @@ import json
 import os
 import winsound
 
-WORD = 'girl'
+WORD = 'девушка в купальнике'
 PAGES = 2
 PATH = 'D:/downs/'
 
@@ -62,11 +62,11 @@ class YandexPictures:
             for self.item in self.pics_divs:
                 json_data = json.loads(self.item.get('data-bem'))
                 self.clean = json_data['serp-item']['preview'][0]['url']
-                if self.clean[-3:] in ['jpg', 'png', 'peg', 'gif', 'svg', 'rge']:
+                if self.clean[-3:] in ['jpg', 'png', 'peg', 'gif', 'svg', 'ebp']:
                     self._look_save_pics()
                 else:
                     self.clean = json_data['serp-item']['preview'][0]['origin']['url']
-                    if self.clean[-3:] in ['jpg', 'png', 'peg', 'gif', 'svg', 'rge']:
+                    if self.clean[-3:] in ['jpg', 'png', 'peg', 'gif', 'svg', 'ebp']:
                         self._look_save_pics()
         if self.sounds:
             winsound.PlaySound("SystemExit", winsound.SND_ALIAS)
