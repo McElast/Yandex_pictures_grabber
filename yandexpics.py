@@ -4,9 +4,11 @@ import json
 import os
 import winsound
 
-WORD = 'space'
+# --------- SETTINGS --------------
+WORD = 'космос'
 PAGES = 3
 PATH = 'D:/downs/'
+###################################
 
 
 class YandexPictures:
@@ -70,10 +72,11 @@ class YandexPictures:
                 else:
                     try:
                         self.clean = json_data['serp-item']['preview'][0]['origin']['url']
-                        if self.clean[-3:] in ['jpg', 'png', 'peg', 'gif', 'svg', 'ebp']:
-                            self._look_save_pics()
                     except KeyError:
                         continue
+                    if self.clean[-3:] in ['jpg', 'png', 'peg', 'gif', 'svg', 'ebp']:
+                        self._look_save_pics()
+
         if self.sounds:
             winsound.PlaySound("SystemExit", winsound.SND_ALIAS)
 
