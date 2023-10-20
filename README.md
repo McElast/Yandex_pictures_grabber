@@ -2,8 +2,9 @@ Download yandex pictures (python)
 
 ----- ENGLISH ----- 
 
-Needed libraries: Beautiful soup, requests.
+Needed libraries: Beautiful soup, requests, fake_useragent.
 Python version 3.11.
+`pip install -r requirements.txt`
 
 1.	HOW TO START 
 
@@ -35,7 +36,9 @@ Good Luck.
 Скрипт качает картинки с Яндекс.Картинок Написано на python (вам потребуется интерпретатор python3.11
 - качается с оф. сайта) 
 
-Также, нужно установить библиотеки: Beautiful soup, requests.
+Также, нужно установить библиотеки: Beautiful soup, requests, fake_useragent.
+Делается на основании файла зависимостей:
+`pip install -r requirements.txt`
 
 1.	Как запустить 
 
