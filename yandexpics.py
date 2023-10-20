@@ -74,7 +74,6 @@ class YandexPictures:
             current_page: int = page + 1
             response: requests.Response = session.get(link)
             soup: BeautifulSoup = BeautifulSoup(response.text, 'html.parser')
-            print(222, soup.text)
             pictures_divs: ResultSet = soup.find_all('div', class_='serp-item_type_search')
 
             try:
