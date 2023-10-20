@@ -1,85 +1,93 @@
-import requests
-from bs4 import BeautifulSoup
+"""Grabbing logic."""
 import json
+import logging
 import os
-import winsound
+from http import HTTPStatus
 
-# --------- SETTINGS --------------
-WORD = 'космос'
-PAGES = 3
-PATH = 'D:/downs/'
-###################################
+import requests
+from bs4 import BeautifulSoup, ResultSet
+
+from settings import bad_symbols, fake_user_agent_chrome, PAGES, PATH, picture_formats, search_link, WORD
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class YandexPictures:
-    def __init__(self, search, num_pages, path, sounds=True):
-        self.search = search
-        self.num_pages = num_pages
-        self.path = path
-        self.pics_divs = []
-        self.k = 0
-        self.item = None
-        self.clean = None
-        self.sounds = sounds
+    """Class for downloading pictures from Yandex."""
 
-    def _print_ok(self):
-        print(f'page {self.k} - {self.pics_divs.index(self.item)} OK')
-
-    def _look_save_pics(self):
-        try:
-            pica = requests.get(self.clean, timeout=5)
-        except Exception as e:
-            if self.sounds:
-                winsound.Beep(500, 400)
-            print('----ERROR---', self.clean)
-            return
-        if pica.status_code == 200:
-            pica = pica.content
-            self.clean = self._clear_url(self.clean)
-            with open(f'{PATH}{self.search}/{self.clean[-22:]}', 'wb') as p:
-                p.write(pica)
-            self._print_ok()
+    def __init__(self, search: str = WORD, num_pages: int = PAGES, path: str = PATH) -> None:
+        """Grabber initializer."""
+        self.search: str = search
+        self.num_pages: int = num_pages
+        self.path: str = path
 
     @staticmethod
-    def _clear_url(uncleaned_url):
-        bad_symbols = '/?:*"<>|\\'
-        for sym in uncleaned_url:
-            if sym in bad_symbols:
-                uncleaned_url = uncleaned_url.replace(sym, '')
+    def _print_ok(current_page: int, picture_index: int) -> None:
+        """Logging success if downloaded picture."""
+        logger.info(f'page {current_page} - {picture_index} OK')
+
+    def _look_save_pics(self, image_url: str, page_num: int, image_num: int) -> None:
+        """Find and save picture."""
+        try:
+            picture: requests.Response = requests.get(image_url, timeout=5)
+        except requests.exceptions.ConnectionError:
+            logger.warning(f'----ERROR--- connection: {image_url}')
+            return
+
+        if picture.status_code != HTTPStatus.OK:
+            logger.warning(f'----ERROR--- status code: {picture.status_code}')
+            return
+
+        image_name: str = self._clear_url(image_url)
+
+        with open(f'{PATH}/{self.search}/{image_name[-22:]}', 'wb') as picture_file:
+            picture_file.write(picture.content)
+
+        self._print_ok(page_num, image_num)
+
+    @staticmethod
+    def _clear_url(uncleaned_url: str) -> str:
+        """Getting name for picture from address."""
+        for symbol in uncleaned_url:
+            if symbol in bad_symbols:
+                uncleaned_url = uncleaned_url.replace(symbol, '')
+
         return uncleaned_url
 
-    def do_search(self):
-        sess = requests.Session()
-        sess.headers.update({'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, '
-                                           'like Gecko) Chrome/74.0.3729.169 Safari/537.36'})
-        for self.k in range(self.num_pages):
-            link = f'https://yandex.ru/images/search?text={self.search}&isize=eq&iw=1920&ih=1080&p={self.k}'
-            a = sess.get(link)
-            soup = BeautifulSoup(a.text, 'html.parser')
-            self.pics_divs = soup.find_all('div', class_='serp-item_type_search')
+    @staticmethod
+    def _check_picture_url_correct(json_data: dict, origin: bool = False) -> str | None:
+        try:
+            if origin:
+                return json_data['serp-item']['preview'][0]['origin']['url']
+            return json_data['serp-item']['preview'][0]['url']
+        except KeyError:
+            return ''
+
+    def do_search(self) -> None:
+        """Iterating over pages and collecting images."""
+        session: requests.Session = requests.Session()
+        session.headers.update({'User-Agent': fake_user_agent_chrome})
+
+        for page in range(self.num_pages):
+            link: str = f'{search_link}{page}'
+            current_page: int = page + 1
+            response: requests.Response = session.get(link)
+            soup: BeautifulSoup = BeautifulSoup(response.text, 'html.parser')
+            print(222, soup.text)
+            pictures_divs: ResultSet = soup.find_all('div', class_='serp-item_type_search')
+
             try:
-                os.mkdir(PATH + self.search)
+                os.mkdir(f'{PATH}/{self.search}')
             except FileExistsError:
-                pass
-            for self.item in self.pics_divs:
-                json_data = json.loads(self.item.get('data-bem'))
-                try:
-                    self.clean = json_data['serp-item']['preview'][0]['url']
-                except KeyError:
-                    continue
-                if self.clean[-3:] in ['jpg', 'png', 'peg', 'gif', 'svg', 'ebp']:
-                    self._look_save_pics()
-                else:
-                    try:
-                        self.clean = json_data['serp-item']['preview'][0]['origin']['url']
-                    except KeyError:
-                        continue
-                    if self.clean[-3:] in ['jpg', 'png', 'peg', 'gif', 'svg', 'ebp']:
-                        self._look_save_pics()
+                logger.warning(f'Dir {PATH}/{self.search} already exists. Skipping creating...')
 
-        if self.sounds:
-            winsound.PlaySound("SystemExit", winsound.SND_ALIAS)
+            for image_num, image in enumerate(pictures_divs):
+                json_data: dict = json.loads(image.get('data-bem'))
+                picture_url: str = self._check_picture_url_correct(json_data)
 
+                if picture_url[-3:] not in picture_formats:
+                    picture_url = self._check_picture_url_correct(json_data, origin=True)
 
-load_pics = YandexPictures(WORD, PAGES, PATH)
-load_pics.do_search()
+                if picture_url:
+                    self._look_save_pics(picture_url, current_page, image_num + 1)
